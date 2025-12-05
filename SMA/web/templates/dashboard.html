@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}Tableau de Bord - DomusIA{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <div class="dashboard-header animate-fade-in">
+        <h1 class="dashboard-welcome">Bonjour, {{ user.full_name.split()[0] }} 👋</h1>
+        <p class="text-muted">Bienvenue sur votre espace DomusIA</p>
+    </div>
+
+    <div class="dashboard-grid">
+        <!-- Statut de l'abonnement -->
+        <div class="stat-card animate-fade-in">
+            <div class="stat-label">📊 Statut de l'abonnement</div>
+            {% if subscription %}
+            <div class="stat-value active">✅ Actif</div>
+            <p class="text-muted mt-1">
+                Plan {{ subscription.plan.value.capitalize() }} -
+                Expire le {{ subscription.expires_at.strftime('%d/%m/%Y') }}
+            </p>
+            {% else %}
+            <div class="stat-value inactive">⚠️ Aucun abonnement</div>
+            <p class="text-muted mt-1">Vous devez souscrire pour utiliser l'assistant.</p>
+            <a href="/payment" class="btn btn-primary mt-2">Activer mon abonnement</a>
+            {% endif %}
+        </div>
+
+        <!-- Statut WhatsApp -->
+        <div class="stat-card animate-fade-in">
+            <div class="stat-label">📱 WhatsApp</div>
+            {% if user.phone_verified %}
+            <div class="stat-value active">✅ Connecté</div>
+            <p class="text-muted mt-1">{{ user.phone_number }}</p>
+            {% elif user.phone_number %}
+            <div class="stat-value" style="color: var(--warning);">⏳ En attente de vérification</div>
+            <p class="text-muted mt-1">{{ user.phone_number }}</p>
+            <a href="/link-whatsapp" class="btn btn-secondary mt-2">Vérifier mon numéro</a>
+            {% else %}
+            <div class="stat-value inactive">❌ Non configuré</div>
+            <p class="text-muted mt-1">Liez votre numéro pour utiliser l'assistant.</p>
+            <a href="/link-whatsapp" class="btn btn-primary mt-2">Lier mon WhatsApp</a>
+            {% endif %}
+        </div>
+
+        <!-- Comment utiliser -->
+        <div class="stat-card animate-fade-in" style="grid-column: 1 / -1;">
+            <div class="stat-label">🚀 Comment utiliser DomusIA</div>
+            <div class="mt-2">
+                {% if subscription and user.phone_verified %}
+                <div class="form-success">
+                    ✅ <strong>Vous êtes prêt !</strong> Envoyez un message sur WhatsApp au
+                    <strong>+14155238886</strong> pour commencer à chercher des biens.
+                </div>
+                <div class="mt-2">
+                    <h4 style="margin-bottom: 0.5rem;">Exemples de messages :</h4>
+                    <ul style="color: var(--text-secondary); margin-left: 1.5rem;">
+                        <li>"Je cherche un appartement à Casablanca, 3 chambres, max 1 million DH"</li>
+                        <li>"Quelles sont les lois sur la location au Maroc ?"</li>
+                        <li>"Je veux négocier le prix de ce bien [ID]"</li>
+                    </ul>
+                </div>
+                {% else %}
+                <div class="form-error">
+                    ⚠️ Pour utiliser l'assistant, vous devez :
+                    <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
+                        {% if not subscription %}
+                        <li>Activer un abonnement</li>
+                        {% endif %}
+                        {% if not user.phone_verified %}
+                        <li>Lier et vérifier votre numéro WhatsApp</li>
+                        {% endif %}
+                    </ol>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

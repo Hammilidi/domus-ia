@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}Paiement - DomusIA{% endblock %}
+
+{% block content %}
+<div class="pricing-section">
+    <div class="pricing-header animate-fade-in">
+        <h1 class="pricing-title">Activez votre abonnement</h1>
+        <p class="text-muted">Choisissez la formule qui vous convient</p>
+    </div>
+
+    <!-- Essai Gratuit -->
+    {% if not used_trial %}
+    <div class="card animate-fade-in"
+        style="max-width: 600px; margin: 0 auto 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(99, 102, 241, 0.1)); border-color: var(--success);">
+        <div class="text-center">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎁</div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Essai Gratuit 30 Jours</h2>
+            <p class="text-muted" style="margin-bottom: 1rem;">
+                Testez DomusIA gratuitement pendant 30 jours.<br>
+                <strong>Aucune carte bancaire requise.</strong>
+            </p>
+            <form action="/start-trial" method="POST">
+                <button type="submit" class="btn btn-success btn-lg">
+                    🚀 Démarrer mon essai gratuit
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="text-center mb-3">
+        <p class="text-muted">— ou choisissez un plan payant —</p>
+    </div>
+    {% else %}
+    <div class="form-error" style="max-width: 600px; margin: 0 auto 2rem;">
+        ⚠️ Vous avez déjà utilisé votre essai gratuit. Choisissez un plan ci-dessous pour continuer.
+    </div>
+    {% endif %}
+
+    <div class="pricing-grid">
+        <!-- Plan Mensuel -->
+        <div class="pricing-card animate-fade-in">
+            <div class="pricing-plan">Mensuel</div>
+            <div class="pricing-price">99 <span>MAD/mois</span></div>
+            <ul class="pricing-features">
+                <li>Recherche illimitée de biens</li>
+                <li>Assistant négociation IA</li>
+                <li>Conseils juridiques</li>
+                <li>Support WhatsApp 24/7</li>
+                <li>Annulation à tout moment</li>
+            </ul>
+            <button onclick="createCheckoutSession('monthly')" class="btn btn-secondary btn-block">
+                Choisir Mensuel
+            </button>
+        </div>
+
+        <!-- Plan Annuel (Featured) -->
+        <div class="pricing-card featured animate-fade-in">
+            <div class="pricing-plan">Annuel</div>
+            <div class="pricing-price">999 <span>MAD/an</span></div>
+            <ul class="pricing-features">
+                <li>Tout du plan Mensuel</li>
+                <li>💰 Économisez 189 MAD (16%)</li>
+                <li>Accès prioritaire aux nouveautés</li>
+                <li>Alertes personnalisées</li>
+                <li>Support premium</li>
+            </ul>
+            <button onclick="createCheckoutSession('yearly')" class="btn btn-primary btn-block">
+                🏆 Choisir Annuel
+            </button>
+        </div>
+    </div>
+
+    <div class="text-center mt-3">
+        <p class="text-muted">
+            🔒 Paiement sécurisé par Stripe. Toutes les cartes bancaires acceptées.
+        </p>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="https://js.stripe.com/v3/"></script>
+{% if stripe_key %}
+<script>
+    const stripe = Stripe('{{ stripe_key }}');
+</script>
+{% endif %}
+{% endblock %}

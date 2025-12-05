@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}Inscription - DomusIA{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card animate-fade-in">
+        <div class="form-header">
+            <h1 class="form-title">Créer un compte</h1>
+            <p class="form-subtitle">Rejoignez DomusIA et accédez à votre assistant immobilier IA</p>
+        </div>
+
+        {% if error %}
+        <div class="form-error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/register" onsubmit="return validateRegistrationForm()">
+            <div class="form-group">
+                <label class="form-label" for="full_name">Nom complet</label>
+                <input type="text" id="full_name" name="full_name" class="form-input" placeholder="Votre nom complet"
+                    required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="votre@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="phone_number">Numéro WhatsApp (optionnel)</label>
+                <input type="tel" id="phone_number" name="phone_number" class="form-input"
+                    placeholder="+212 6XX XXX XXX" onblur="formatPhoneInput(this)">
+                <small class="text-muted">Vous pourrez le lier plus tard</small>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" class="form-input"
+                    placeholder="Minimum 8 caractères" minlength="8" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                🚀 Créer mon compte
+            </button>
+        </form>
+
+        <div class="form-footer">
+            <p>Déjà inscrit ? <a href="/login">Se connecter</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

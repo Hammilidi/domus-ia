@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+
+{% block title %}Connexion - DomusIA{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card animate-fade-in">
+        <div class="form-header">
+            <h1 class="form-title">Bon retour ! 👋</h1>
+            <p class="form-subtitle">Connectez-vous à votre compte DomusIA</p>
+        </div>
+
+        {% if error %}
+        <div class="form-error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        <form method="POST" action="/login">
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" id="email" name="email" class="form-input" placeholder="votre@email.com" required>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Mot de passe</label>
+                <input type="password" id="password" name="password" class="form-input" placeholder="Votre mot de passe"
+                    required>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                Se connecter
+            </button>
+        </form>
+
+        <div class="form-footer">
+            <p>Pas encore de compte ? <a href="/register">S'inscrire</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

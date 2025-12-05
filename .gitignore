@@ -1,0 +1,7 @@
+env3.12/
+env/
+.env
+__pycache__
+SMA/__pycache__
+data/
+RAG/

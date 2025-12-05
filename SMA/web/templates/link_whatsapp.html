@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+
+{% block title %}Lier WhatsApp - DomusIA{% endblock %}
+
+{% block content %}
+<div class="form-container">
+    <div class="form-card animate-fade-in">
+        <div class="form-header">
+            <h1 class="form-title">📱 Lier votre WhatsApp</h1>
+            <p class="form-subtitle">
+                Entrez votre numéro WhatsApp pour recevoir un code de vérification
+            </p>
+        </div>
+
+        {% if error %}
+        <div class="form-error">
+            ⚠️ {{ error }}
+        </div>
+        {% endif %}
+
+        {% if success %}
+        <div class="form-success">
+            {{ success }}
+        </div>
+        {% endif %}
+
+        {% if not code_sent %}
+        <!-- Formulaire d'envoi du numéro -->
+        <form method="POST" action="/link-whatsapp" onsubmit="return validatePhoneNumber()">
+            <div class="form-group">
+                <label class="form-label" for="phone_number">Numéro WhatsApp</label>
+                <input type="tel" id="phone_number" name="phone_number" class="form-input"
+                    placeholder="+212 6XX XXX XXX" value="{{ user.phone_number or '' }}" required>
+                <small class="text-muted">Format: +212 6XX XXX XXX</small>
+            </div>
+
+            <button type="submit" class="btn btn-primary btn-block btn-lg">
+                📤 Envoyer le code
+            </button>
+        </form>
+        {% else %}
+        <!-- Formulaire de vérification du code -->
+        <form method="POST" action="/verify-phone">
+            <div class="form-group">
+                <label class="form-label" for="code">Code de vérification</label>
+                <input type="text" id="code" name="code" class="form-input" placeholder="XXXXXX" maxlength="6"
+                    pattern="[0-9]{6}" style="font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;" required>
+                <small class="text-muted">
+                    Entrez le code à 6 chiffres envoyé sur WhatsApp
+                    {% if debug_code %}
+                    <br><strong style="color: var(--warning);">⚠️ DEV: {{ debug_code }}</strong>
+                    {% endif %}
+                </small>
+            </div>
+
+            <button type="submit" class="btn btn-success btn-block btn-lg">
+                ✅ Vérifier
+            </button>
+        </form>
+
+        <div class="form-footer">
+            <a href="/link-whatsapp">← Changer de numéro</a>
+        </div>
+        {% endif %}
+
+        {% if user.phone_verified %}
+        <div class="form-success mt-3">
+            ✅ Votre numéro <strong>{{ user.phone_number }}</strong> est vérifié !
+        </div>
+        <div class="mt-2">
+            <a href="/dashboard" class="btn btn-secondary btn-block">
+                Retour au Tableau de Bord
+            </a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}DomusIA - Assistant Immobilier IA{% endblock %}</title>
+    <meta name="description" content="{% block description %}Votre assistant immobilier intelligent accessible via WhatsApp{% endblock %}">
+    
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="shortcut icon" href="../static/logo.jpg" type="image/x-jpg">
+    
+    {% block head %}{% endblock %}
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <a href="/" class="logo">
+            <span class="logo-icon">🏠</span>
+            <span>DomusIA</span>
+        </a>
+        <div class="nav-links">
+            {% if user %}
+                <a href="/dashboard" class="nav-link">Tableau de bord</a>
+                <a href="/link-whatsapp" class="nav-link">📱 WhatsApp</a>
+                <a href="/logout" class="nav-link">Déconnexion</a>
+            {% else %}
+                <a href="/login" class="nav-link">Connexion</a>
+                <a href="/register" class="btn btn-primary">S'inscrire</a>
+            {% endif %}
+        </div>
+    </nav>
+
+    <!-- Content -->
+    <main>
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <p>&copy; 2024 DomusIA. Votre assistant immobilier intelligent.</p>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="/static/js/app.js"></script>
+    {% block scripts %}{% endblock %}
+</body>
+</html>

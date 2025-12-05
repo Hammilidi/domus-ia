@@ -1,0 +1,116 @@
+{% extends "base.html" %}
+
+{% block title %}DomusIA - Assistant Immobilier IA sur WhatsApp{% endblock %}
+
+{% block content %}
+<!-- Hero Section -->
+<section class="hero">
+    <div class="hero-content animate-fade-in">
+        <div class="hero-badge">
+            <span>🤖</span>
+            <span>Propulsé par l'Intelligence Artificielle</span>
+        </div>
+
+        <h1 class="hero-title">
+            Trouvez votre bien immobilier<br>
+            <span>directement sur WhatsApp</span>
+        </h1>
+
+        <p class="hero-description">
+            Accédez à un assistant immobilier intelligent 24h/24. Recherche de biens,
+            négociation, conseils juridiques — tout cela via une simple conversation WhatsApp.
+        </p>
+
+        <div class="hero-buttons">
+            {% if user %}
+            <a href="/dashboard" class="btn btn-primary btn-lg">
+                📊 Mon Tableau de Bord
+            </a>
+            {% else %}
+            <a href="/register" class="btn btn-primary btn-lg">
+                🚀 Commencer Maintenant
+            </a>
+            <a href="/login" class="btn btn-secondary btn-lg">
+                Se Connecter
+            </a>
+            {% endif %}
+        </div>
+    </div>
+</section>
+
+<!-- Features Section -->
+<section class="features-section">
+    <div class="features-grid">
+        <div class="feature-card animate-fade-in">
+            <div class="feature-icon">🔍</div>
+            <h3 class="feature-title">Recherche Intelligente</h3>
+            <p class="feature-description">
+                Décrivez simplement ce que vous cherchez et notre IA trouve les biens correspondants en quelques
+                secondes.
+            </p>
+        </div>
+
+        <div class="feature-card animate-fade-in">
+            <div class="feature-icon">💬</div>
+            <h3 class="feature-title">Négociation Assistée</h3>
+            <p class="feature-description">
+                Notre expert en négociation vous aide à obtenir le meilleur prix pour votre futur bien immobilier.
+            </p>
+        </div>
+
+        <div class="feature-card animate-fade-in">
+            <div class="feature-icon">⚖️</div>
+            <h3 class="feature-title">Conseils Juridiques</h3>
+            <p class="feature-description">
+                Posez vos questions sur les lois, contrats et procédures immobilières au Maroc.
+            </p>
+        </div>
+
+        <div class="feature-card animate-fade-in">
+            <div class="feature-icon whatsapp-icon">📱</div>
+            <h3 class="feature-title">Disponible 24h/24</h3>
+            <p class="feature-description">
+                Accédez à votre assistant immobilier à tout moment, directement depuis WhatsApp.
+            </p>
+        </div>
+    </div>
+</section>
+
+<!-- Pricing Section -->
+<section class="pricing-section" id="pricing">
+    <div class="pricing-header">
+        <h2 class="pricing-title">Choisissez votre formule</h2>
+        <p class="text-muted">Accès illimité à votre assistant immobilier IA</p>
+    </div>
+
+    <div class="pricing-grid">
+        <div class="pricing-card">
+            <div class="pricing-plan">Mensuel</div>
+            <div class="pricing-price">99 <span>MAD/mois</span></div>
+            <ul class="pricing-features">
+                <li>Recherche illimitée de biens</li>
+                <li>Assistant négociation</li>
+                <li>Conseils juridiques</li>
+                <li>Support WhatsApp 24/7</li>
+            </ul>
+            <a href="/register?plan=monthly" class="btn btn-secondary btn-block">
+                Choisir Mensuel
+            </a>
+        </div>
+
+        <div class="pricing-card featured">
+            <div class="pricing-plan">Annuel</div>
+            <div class="pricing-price">999 <span>MAD/an</span></div>
+            <ul class="pricing-features">
+                <li>Tout du plan Mensuel</li>
+                <li>Économisez 189 MAD</li>
+                <li>Accès prioritaire</li>
+                <li>Alertes personnalisées</li>
+            </ul>
+            <a href="/register?plan=yearly" class="btn btn-primary btn-block">
+                Choisir Annuel
+            </a>
+        </div>
+    </div>
+</section>
+{% endblock %}
