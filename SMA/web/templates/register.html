@@ -4,50 +4,95 @@
 
 {% block content %}
 <div class="form-container">
-    <div class="form-card animate-fade-in">
-        <div class="form-header">
-            <h1 class="form-title">Créer un compte</h1>
-            <p class="form-subtitle">Rejoignez DomusIA et accédez à votre assistant immobilier IA</p>
+    <div class="form-card glass-panel animate-fade-in">
+        <a href="/"
+            style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; margin-bottom: 1.5rem; transition: color 0.3s;">
+            ← Retour à l'accueil
+        </a>
+
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <h1 style="font-size: 2rem; font-weight: 700;">Créer un compte</h1>
+            <p style="color: var(--text-muted);">Commencez votre recherche immobilière</p>
         </div>
 
         {% if error %}
-        <div class="form-error">
-            ⚠️ {{ error }}
+        <div class="status-error" style="padding: 1rem; border-radius: 8px; margin-bottom: 1.5rem; text-align: center;">
+            {{ error }}
         </div>
         {% endif %}
 
         <form method="POST" action="/register" onsubmit="return validateRegistrationForm()">
             <div class="form-group">
-                <label class="form-label" for="full_name">Nom complet</label>
-                <input type="text" id="full_name" name="full_name" class="form-input" placeholder="Votre nom complet"
-                    required>
+                <label class="form-label">Nom complet</label>
+                <input type="text" name="full_name" class="form-input" placeholder="Ex: Karim Benali" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="email">Email</label>
-                <input type="email" id="email" name="email" class="form-input" placeholder="votre@email.com" required>
+                <label class="form-label">Email professionnel ou personnel</label>
+                <input type="email" name="email" class="form-input" placeholder="nom@exemple.com" required>
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="phone_number">Numéro WhatsApp (optionnel)</label>
-                <input type="tel" id="phone_number" name="phone_number" class="form-input"
-                    placeholder="+212 6XX XXX XXX" onblur="formatPhoneInput(this)">
-                <small class="text-muted">Vous pourrez le lier plus tard</small>
+                <label class="form-label">WhatsApp (Optionnel)</label>
+                <input type="tel" name="phone_number" class="form-input" placeholder="+212 6XX XXX XXX"
+                    onblur="formatPhoneInput(this)">
             </div>
 
             <div class="form-group">
-                <label class="form-label" for="password">Mot de passe</label>
+                <label class="form-label">Je suis...</label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 0.5rem;">
+                    <label
+                        style="display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: all 0.3s;"
+                        onclick="selectRole(this, 'user')">
+                        <input type="radio" name="role" value="user" checked style="display: none;">
+                        <span style="font-size: 2rem; margin-bottom: 0.5rem;">🔍</span>
+                        <span style="font-weight: 600;">Je cherche un bien</span>
+                        <small class="text-muted" style="margin-top: 0.25rem;">Utiliser l'assistant IA</small>
+                    </label>
+                    <label
+                        style="display: flex; flex-direction: column; align-items: center; padding: 1.5rem 1rem; background: rgba(255,255,255,0.05); border: 2px solid rgba(255,255,255,0.1); border-radius: 12px; cursor: pointer; transition: all 0.3s;"
+                        onclick="selectRole(this, 'owner')">
+                        <input type="radio" name="role" value="owner" style="display: none;">
+                        <span style="font-size: 2rem; margin-bottom: 0.5rem;">🏠</span>
+                        <span style="font-weight: 600;">Je propose des biens</span>
+                        <small class="text-muted" style="margin-top: 0.25rem;">Gérer mes annonces</small>
+                    </label>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Mot de passe</label>
                 <input type="password" id="password" name="password" class="form-input"
-                    placeholder="Minimum 8 caractères" minlength="8" required>
+                    placeholder="8 caractères minimum" minlength="8" required>
             </div>
 
-            <button type="submit" class="btn btn-primary btn-block btn-lg">
-                🚀 Créer mon compte
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="margin-top: 1.5rem;">
+                🚀 Commencer maintenant
             </button>
         </form>
 
-        <div class="form-footer">
-            <p>Déjà inscrit ? <a href="/login">Se connecter</a></p>
+        <script>
+            function selectRole(element, role) {
+                // Reset all
+                document.querySelectorAll('[name="role"]').forEach(r => {
+                    r.parentElement.style.borderColor = 'rgba(255,255,255,0.1)';
+                    r.parentElement.style.background = 'rgba(255,255,255,0.05)';
+                });
+                // Highlight selected
+                element.style.borderColor = 'var(--primary)';
+                element.style.background = 'rgba(99,102,241,0.15)';
+                element.querySelector('input').checked = true;
+            }
+            // Initial selection
+            document.addEventListener('DOMContentLoaded', () => {
+                selectRole(document.querySelector('[value="user"]').parentElement, 'user');
+            });
+        </script>
+
+        <div
+            style="text-align: center; margin-top: 2rem; padding-top: 1rem; border-top: 1px solid rgba(255,255,255,0.1);">
+            <p style="color: var(--text-muted);">Déjà un compte ? <a href="/login"
+                    style="color: #fff; text-decoration: none; font-weight: 600;">Se connecter</a></p>
         </div>
     </div>
 </div>

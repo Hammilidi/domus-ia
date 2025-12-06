@@ -1,80 +1,70 @@
 {% extends "base.html" %}
 
-{% block title %}Paiement - DomusIA{% endblock %}
+{% block title %}Abonnement - DomusIA{% endblock %}
 
 {% block content %}
-<div class="pricing-section">
-    <div class="pricing-header animate-fade-in">
-        <h1 class="pricing-title">Activez votre abonnement</h1>
-        <p class="text-muted">Choisissez la formule qui vous convient</p>
+<div class="container" style="padding-top: 8rem; padding-bottom: 4rem;">
+    <div style="text-align: center; margin-bottom: 3rem;" class="animate-fade-in">
+        <h1 class="hero-title" style="font-size: 2.5rem;">Activez votre accès</h1>
+        <p class="text-muted">Investissez dans votre projet immobilier</p>
     </div>
 
-    <!-- Essai Gratuit -->
     {% if not used_trial %}
-    <div class="card animate-fade-in"
-        style="max-width: 600px; margin: 0 auto 2rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(99, 102, 241, 0.1)); border-color: var(--success);">
-        <div class="text-center">
-            <div style="font-size: 3rem; margin-bottom: 0.5rem;">🎁</div>
-            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem;">Essai Gratuit 30 Jours</h2>
-            <p class="text-muted" style="margin-bottom: 1rem;">
-                Testez DomusIA gratuitement pendant 30 jours.<br>
-                <strong>Aucune carte bancaire requise.</strong>
+    <div class="glass-panel animate-fade-in"
+        style="max-width: 700px; margin: 0 auto 3rem; background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(15, 23, 42, 0.6)); border: 1px solid rgba(16, 185, 129, 0.4); padding: 2rem; text-align: center; position: relative; overflow: hidden;">
+        
+        <div style="position: relative; z-index: 1;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🎁</div>
+            <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.5rem; color: #34d399;">30 Jours d'Essai Offerts</h2>
+            <p class="text-muted" style="margin-bottom: 1.5rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                Découvrez la puissance de l'IA sans engagement. Aucune carte bancaire n'est requise pour commencer.
             </p>
             <form action="/start-trial" method="POST">
-                <button type="submit" class="btn btn-success btn-lg">
-                    🚀 Démarrer mon essai gratuit
+                <button type="submit" class="btn btn-primary" style="background: #10b981; border: none; padding: 0.8rem 2rem;">
+                    Démarrer l'essai gratuit
                 </button>
             </form>
         </div>
     </div>
-
-    <div class="text-center mb-3">
-        <p class="text-muted">— ou choisissez un plan payant —</p>
-    </div>
-    {% else %}
-    <div class="form-error" style="max-width: 600px; margin: 0 auto 2rem;">
-        ⚠️ Vous avez déjà utilisé votre essai gratuit. Choisissez un plan ci-dessous pour continuer.
-    </div>
     {% endif %}
 
-    <div class="pricing-grid">
-        <!-- Plan Mensuel -->
-        <div class="pricing-card animate-fade-in">
-            <div class="pricing-plan">Mensuel</div>
-            <div class="pricing-price">99 <span>MAD/mois</span></div>
-            <ul class="pricing-features">
-                <li>Recherche illimitée de biens</li>
-                <li>Assistant négociation IA</li>
-                <li>Conseils juridiques</li>
-                <li>Support WhatsApp 24/7</li>
-                <li>Annulation à tout moment</li>
+    <div class="pricing-grid" style="max-width: 900px; margin: 0 auto;">
+        <div class="glass-panel animate-fade-in" style="padding: 2.5rem; display: flex; flex-direction: column;">
+            <h3 style="font-size: 1.5rem;">Mensuel</h3>
+            <div style="font-size: 3rem; font-weight: 800; margin: 1rem 0;">99 <span style="font-size: 1rem; font-weight: 400; color: var(--text-muted);">MAD</span></div>
+            <ul style="list-style: none; margin-bottom: 2rem; color: var(--text-muted); space-y: 1rem; flex-grow: 1;">
+                <li style="margin-bottom: 0.8rem">✓ Recherche illimitée</li>
+                <li style="margin-bottom: 0.8rem">✓ Négociation IA</li>
+                <li style="margin-bottom: 0.8rem">✓ Support juridique</li>
+                <li style="margin-bottom: 0.8rem">✓ Sans engagement</li>
             </ul>
             <button onclick="createCheckoutSession('monthly')" class="btn btn-secondary btn-block">
                 Choisir Mensuel
             </button>
         </div>
 
-        <!-- Plan Annuel (Featured) -->
-        <div class="pricing-card featured animate-fade-in">
-            <div class="pricing-plan">Annuel</div>
-            <div class="pricing-price">999 <span>MAD/an</span></div>
-            <ul class="pricing-features">
-                <li>Tout du plan Mensuel</li>
-                <li>💰 Économisez 189 MAD (16%)</li>
-                <li>Accès prioritaire aux nouveautés</li>
-                <li>Alertes personnalisées</li>
-                <li>Support premium</li>
+        <div class="glass-panel animate-fade-in" style="padding: 2.5rem; border: 1px solid var(--primary); background: linear-gradient(180deg, rgba(99, 102, 241, 0.1) 0%, rgba(30, 41, 59, 0.7) 100%); display: flex; flex-direction: column;">
+            <div style="margin-bottom: 1rem;">
+                <span style="background: var(--primary); color: white; padding: 4px 12px; border-radius: 20px; font-size: 0.75rem; font-weight: 600; text-transform: uppercase;">Meilleure offre</span>
+            </div>
+            <h3 style="font-size: 1.5rem; color: #818cf8;">Annuel</h3>
+            <div style="font-size: 3rem; font-weight: 800; margin: 1rem 0;">999 <span style="font-size: 1rem; font-weight: 400; color: var(--text-muted);">MAD</span></div>
+            <p style="color: #34d399; font-size: 0.9rem; margin-top: -10px; margin-bottom: 1.5rem;">Économisez 16% (2 mois offerts)</p>
+            
+            <ul style="list-style: none; margin-bottom: 2rem; color: var(--text-main); flex-grow: 1;">
+                <li style="margin-bottom: 0.8rem">✓ <strong>Accès prioritaire (Fast lane)</strong></li>
+                <li style="margin-bottom: 0.8rem">✓ Alertes instantanées</li>
+                <li style="margin-bottom: 0.8rem">✓ Support Premium</li>
+                <li style="margin-bottom: 0.8rem">✓ Tout le plan mensuel</li>
             </ul>
             <button onclick="createCheckoutSession('yearly')" class="btn btn-primary btn-block">
-                🏆 Choisir Annuel
+                Choisir Annuel
             </button>
         </div>
     </div>
 
-    <div class="text-center mt-3">
-        <p class="text-muted">
-            🔒 Paiement sécurisé par Stripe. Toutes les cartes bancaires acceptées.
-        </p>
+    <div style="text-align: center; margin-top: 3rem; color: var(--text-muted); font-size: 0.9rem;">
+        🔒 Paiements sécurisés et cryptés via Stripe.
     </div>
 </div>
 {% endblock %}

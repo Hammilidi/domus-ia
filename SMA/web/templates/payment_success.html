@@ -1,25 +1,33 @@
 {% extends "base.html" %}
 
-{% block title %}Paiement réussi - DomusIA{% endblock %}
+{% block title %}Succès - DomusIA{% endblock %}
 
 {% block content %}
 <div class="form-container">
-    <div class="form-card animate-fade-in text-center">
-        <div style="font-size: 4rem; margin-bottom: 1rem;">🎉</div>
-        <h1 class="form-title text-success">Paiement réussi !</h1>
-        <p class="form-subtitle">
-            Votre abonnement DomusIA est maintenant actif.<br>
-            Vous pouvez utiliser l'assistant immobilier IA sur WhatsApp.
+    <div class="form-card glass-panel animate-fade-in" style="text-align: center; border-color: #10b981;">
+        <div style="font-size: 5rem; margin-bottom: 1rem; animation: pulse 2s infinite;">🎉</div>
+        
+        <h1 style="font-size: 2.5rem; font-weight: 800; margin-bottom: 1rem;">
+            <span class="gradient-text" style="background-image: linear-gradient(135deg, #10b981, #34d399);">Paiement Réussi !</span>
+        </h1>
+        
+        <p class="text-muted" style="font-size: 1.1rem; margin-bottom: 2.5rem;">
+            Bienvenue dans le cercle DomusIA.<br>
+            Votre assistant personnel est prêt à travailler pour vous.
         </p>
 
-        <div class="mt-3">
+        <div style="display: flex; flex-direction: column; gap: 1rem;">
             {% if user and not user.phone_verified %}
-            <a href="/link-whatsapp" class="btn btn-primary btn-lg">
+            <a href="/link-whatsapp" class="btn btn-primary btn-lg btn-block">
                 📱 Lier mon WhatsApp
             </a>
+            <p class="text-muted" style="font-size: 0.9rem;">Dernière étape requise</p>
             {% else %}
-            <a href="/dashboard" class="btn btn-primary btn-lg">
-                📊 Aller au Tableau de Bord
+            <a href="/dashboard" class="btn btn-primary btn-lg btn-block">
+                🚀 Accéder au Dashboard
+            </a>
+            <a href="https://wa.me/14155238886" target="_blank" class="btn btn-secondary btn-block">
+                Ouvrir WhatsApp
             </a>
             {% endif %}
         </div>

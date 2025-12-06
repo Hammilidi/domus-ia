@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+
+{% block title %}Gestion utilisateurs - Admin DomusIA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 8rem; padding-bottom: 4rem;">
+    <div class="animate-fade-in" style="margin-bottom: 2rem;">
+        <a href="/admin"
+            style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; margin-bottom: 1rem;">
+            ← Retour au tableau de bord
+        </a>
+        <h1 style="font-size: 2rem; font-weight: 700;">👥 Gestion des utilisateurs</h1>
+    </div>
+
+    {% if success %}
+    <div class="glass-panel"
+        style="margin-bottom: 2rem; padding: 1rem; background: rgba(16,185,129,0.1); border-color: rgba(16,185,129,0.4);">
+        <p style="color: #34d399;">✅ {{ success }}</p>
+    </div>
+    {% endif %}
+
+    <div class="glass-panel animate-fade-in">
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <th style="padding: 1rem 0.5rem;">Nom</th>
+                        <th style="padding: 1rem 0.5rem;">Email</th>
+                        <th style="padding: 1rem 0.5rem;">Téléphone</th>
+                        <th style="padding: 1rem 0.5rem;">Rôle</th>
+                        <th style="padding: 1rem 0.5rem;">Statut</th>
+                        <th style="padding: 1rem 0.5rem;">Inscrit le</th>
+                        <th style="padding: 1rem 0.5rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in users %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 1rem 0.5rem; font-weight: 500;">{{ u.full_name }}</td>
+                        <td style="padding: 1rem 0.5rem; color: var(--text-muted);">{{ u.email }}</td>
+                        <td style="padding: 1rem 0.5rem; color: var(--text-muted);">{{ u.phone_number or '-' }}</td>
+                        <td style="padding: 1rem 0.5rem;">
+                            <form method="POST" action="/admin/users/{{ u.id }}/role" style="display: inline;">
+                                <select name="role" onchange="this.form.submit()"
+                                    style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2); border-radius: 6px; padding: 0.3rem 0.5rem; color: white; cursor: pointer;">
+                                    <option value="user" {% if u.role.value=='user' %}selected{% endif %}>Utilisateur
+                                    </option>
+                                    <option value="owner" {% if u.role.value=='owner' %}selected{% endif %}>Propriétaire
+                                    </option>
+                                    <option value="admin" {% if u.role.value=='admin' %}selected{% endif %}>Admin
+                                    </option>
+                                </select>
+                            </form>
+                        </td>
+                        <td style="padding: 1rem 0.5rem;">
+                            {% if u.is_active %}
+                            <span class="status-badge status-active">Actif</span>
+                            {% else %}
+                            <span class="status-badge status-error">Inactif</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem 0.5rem; color: var(--text-muted);">{{ u.created_at.strftime('%d/%m/%Y')
+                            }}</td>
+                        <td style="padding: 1rem 0.5rem;">
+                            {% if u.phone_verified %}
+                            <span style="color: #34d399;" title="WhatsApp vérifié">📱✓</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+        {% if not users %}
+        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+            Aucun utilisateur trouvé
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

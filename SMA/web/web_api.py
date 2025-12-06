@@ -11,11 +11,12 @@ from dotenv import load_dotenv
 
 # Imports locaux
 from web.database import Database
-from web.models import UserCreate, UserLogin, Token, SubscriptionPlan
+from web.models import UserCreate, UserLogin, Token, SubscriptionPlan, UserRole
 from web.services.auth_service import create_access_token, decode_access_token
 from web.services.user_service import (
     create_user, authenticate_user, get_user_by_id, 
-    update_phone_number, verify_phone, get_user_by_phone
+    update_phone_number, verify_phone, get_user_by_phone,
+    create_admin_if_not_exists, get_all_users, update_user_role, count_users_by_role
 )
 from web.services.subscription_service import (
     get_user_active_subscription, has_active_subscription, 
@@ -51,6 +52,8 @@ app.mount("/static", StaticFiles(directory=os.path.join(BASE_DIR, "static")), na
 @app.on_event("startup")
 async def startup_event():
     await Database.connect()
+    # Créer l'admin par défaut s'il n'existe pas
+    await create_admin_if_not_exists()
     print("🌐 Interface Web DomusIA démarrée")
 
 
@@ -122,14 +125,19 @@ async def register_submit(
     email: str = Form(...),
     password: str = Form(...),
     full_name: str = Form(...),
-    phone_number: Optional[str] = Form(None)
+    phone_number: Optional[str] = Form(None),
+    role: str = Form("user")
 ):
-    """Traitement de l'inscription"""
+    """Traitement de l'inscription avec rôle"""
+    # Convertir le role string en enum
+    user_role = UserRole.OWNER if role == "owner" else UserRole.USER
+    
     user_data = UserCreate(
         email=email,
         password=password,
         full_name=full_name,
-        phone_number=phone_number
+        phone_number=phone_number,
+        role=user_role
     )
     
     user = await create_user(user_data)
@@ -144,8 +152,11 @@ async def register_submit(
     token = create_access_token({"user_id": str(user.id), "email": user.email})
     request.session["access_token"] = token
     
-    # Rediriger vers la page de paiement
-    return RedirectResponse(url="/payment", status_code=303)
+    # Rediriger selon le rôle
+    if user_role == UserRole.OWNER:
+        return RedirectResponse(url="/owner/dashboard", status_code=303)
+    else:
+        return RedirectResponse(url="/payment", status_code=303)
 
 
 @app.get("/login", response_class=HTMLResponse)
@@ -167,7 +178,7 @@ async def login_submit(
     email: str = Form(...),
     password: str = Form(...)
 ):
-    """Traitement de la connexion"""
+    """Traitement de la connexion avec redirection basée sur le rôle"""
     user = await authenticate_user(email, password)
     
     if not user:
@@ -179,7 +190,13 @@ async def login_submit(
     token = create_access_token({"user_id": str(user.id), "email": user.email})
     request.session["access_token"] = token
     
-    return RedirectResponse(url="/dashboard", status_code=303)
+    # Redirection basée sur le rôle
+    if user.role == UserRole.ADMIN:
+        return RedirectResponse(url="/admin", status_code=303)
+    elif user.role == UserRole.OWNER:
+        return RedirectResponse(url="/owner/dashboard", status_code=303)
+    else:
+        return RedirectResponse(url="/dashboard", status_code=303)
 
 
 @app.get("/logout")
@@ -435,8 +452,315 @@ async def check_subscription_api(phone_number: str):
     })
 
 
-# ==================== EXÉCUTION ====================
+# ==================== SOUMISSION DE BIENS ====================
+
+@app.get("/submit-property", response_class=HTMLResponse)
+async def submit_property_page(request: Request):
+    """Page de soumission d'un bien immobilier"""
+    user = await get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    return templates.TemplateResponse("submit_property.html", {
+        "request": request,
+        "user": user,
+        "success": None,
+        "error": None
+    })
+
+
+@app.post("/submit-property")
+async def submit_property_submit(
+    request: Request,
+    title: str = Form(...),
+    property_type: str = Form(...),
+    transaction_type: str = Form(...),
+    price: str = Form(...),
+    city: str = Form(...),
+    adresse: Optional[str] = Form(None),
+    surface: Optional[str] = Form(None),
+    rooms: Optional[str] = Form(None),
+    etage: Optional[str] = Form(None),
+    age_bien: Optional[str] = Form(None),
+    ascenseur: Optional[str] = Form(None),
+    piscine: Optional[str] = Form(None),
+    balcon: Optional[str] = Form(None),
+    description: Optional[str] = Form(None),
+    caracteristiques_supp: Optional[str] = Form(None),
+    contact: Optional[str] = Form(None),
+    url: Optional[str] = Form(None)
+):
+    """Traitement de la soumission d'un bien avec upload d'images"""
+    from datetime import datetime
+    from pymongo import MongoClient
+    from fastapi import UploadFile, File
+    import uuid
+    import shutil
+    
+    user = await get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    # Configuration MongoDB
+    MONGO_USER = os.getenv("MONGO_USER")
+    MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+    MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
+    MONGO_PORT = os.getenv("MONGO_PORT", "27017")
+    MONGO_DB = os.getenv("MONGO_DB", "listings")
+    MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "listings")
+    
+    if MONGO_USER and MONGO_PASSWORD:
+        MONGODB_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/?authSource=admin"
+    else:
+        MONGODB_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
+    
+    try:
+        # Traiter les fichiers uploadés
+        form = await request.form()
+        images_list = []
+        
+        # Créer le dossier uploads si nécessaire
+        upload_dir = os.path.join(BASE_DIR, "static", "uploads", "properties")
+        os.makedirs(upload_dir, exist_ok=True)
+        
+        # Récupérer tous les fichiers images
+        for key, value in form.multi_items():
+            if key == "images" and hasattr(value, 'filename') and value.filename:
+                # Générer un nom unique
+                file_ext = os.path.splitext(value.filename)[1].lower()
+                if file_ext in ['.jpg', '.jpeg', '.png', '.webp', '.gif']:
+                    unique_name = f"{uuid.uuid4().hex}{file_ext}"
+                    file_path = os.path.join(upload_dir, unique_name)
+                    
+                    # Sauvegarder le fichier
+                    with open(file_path, "wb") as buffer:
+                        content = await value.read()
+                        buffer.write(content)
+                    
+                    # URL relative pour accès web
+                    image_url = f"/static/uploads/properties/{unique_name}"
+                    images_list.append(image_url)
+        
+        client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+        db = client[MONGO_DB]
+        collection = db[MONGO_COLLECTION]
+        
+        # Préparer le document
+        location = f"{city}, {adresse}" if adresse else city
+        
+        property_doc = {
+            "title": title,
+            "property_type": property_type,
+            "transaction_type": transaction_type,
+            "price": price,
+            "location": location,
+            "adresse": adresse or "",
+            "surface": surface,
+            "rooms": rooms,
+            "etage": etage,
+            "age_bien": age_bien,
+            "ascenseur": ascenseur or "False",
+            "piscine": piscine or "False",
+            "balcon": balcon or "False",
+            "description": description,
+            "caracteristiques_supp": caracteristiques_supp,
+            "contact": contact,
+            "url": url or "",
+            "images": images_list[0] if len(images_list) == 1 else images_list if images_list else None,
+            "source_site": "DomusIA - Contribution utilisateur",
+            "date_publication": datetime.now().strftime("%Y-%m-%d"),
+            "scraped_at": datetime.utcnow(),
+            "submitted_by": str(user.id),
+            "submitted_by_email": user.email
+        }
+        
+        # Insérer dans MongoDB
+        result = collection.insert_one(property_doc)
+        
+        client.close()
+        
+        return templates.TemplateResponse("submit_property.html", {
+            "request": request,
+            "user": user,
+            "success": True,
+            "error": None
+        })
+        
+    except Exception as e:
+        return templates.TemplateResponse("submit_property.html", {
+            "request": request,
+            "user": user,
+            "success": None,
+            "error": f"Erreur lors de l'ajout : {str(e)}"
+        })
+
+
+# ==================== ROUTES ADMIN ====================
+
+async def require_admin(request: Request):
+    """Vérifier que l'utilisateur est admin"""
+    user = await get_current_user(request)
+    if not user or user.role != UserRole.ADMIN:
+        raise HTTPException(status_code=403, detail="Accès réservé aux administrateurs")
+    return user
+
+
+@app.get("/admin", response_class=HTMLResponse)
+async def admin_dashboard(request: Request):
+    """Tableau de bord admin"""
+    user = await get_current_user(request)
+    if not user or user.role != UserRole.ADMIN:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    from pymongo import MongoClient
+    
+    # Statistiques utilisateurs
+    stats = await count_users_by_role()
+    
+    # Récupérer les derniers utilisateurs
+    recent_users = await get_all_users(limit=10)
+    
+    # Compter les biens
+    MONGO_USER = os.getenv("MONGO_USER")
+    MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+    MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
+    MONGO_PORT = os.getenv("MONGO_PORT", "27017")
+    MONGO_DB = os.getenv("MONGO_DB", "listings")
+    MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "listings")
+    
+    if MONGO_USER and MONGO_PASSWORD:
+        MONGODB_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/?authSource=admin"
+    else:
+        MONGODB_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
+    
+    try:
+        client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+        properties_count = client[MONGO_DB][MONGO_COLLECTION].count_documents({})
+        client.close()
+    except:
+        properties_count = 0
+    
+    # Compter les abonnements actifs
+    from web.database import get_subscriptions_collection
+    subs = get_subscriptions_collection()
+    subscriptions_count = await subs.count_documents({"status": "active"})
+    
+    return templates.TemplateResponse("admin/dashboard.html", {
+        "request": request,
+        "user": user,
+        "stats": stats,
+        "recent_users": recent_users,
+        "properties_count": properties_count,
+        "subscriptions_count": subscriptions_count
+    })
+
+
+@app.get("/admin/users", response_class=HTMLResponse)
+async def admin_users(request: Request):
+    """Liste des utilisateurs admin"""
+    user = await get_current_user(request)
+    if not user or user.role != UserRole.ADMIN:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    users = await get_all_users(limit=100)
+    
+    return templates.TemplateResponse("admin/users.html", {
+        "request": request,
+        "user": user,
+        "users": users,
+        "success": request.query_params.get("success")
+    })
+
+
+@app.post("/admin/users/{user_id}/role")
+async def admin_change_user_role(request: Request, user_id: str, role: str = Form(...)):
+    """Changer le rôle d'un utilisateur"""
+    user = await get_current_user(request)
+    if not user or user.role != UserRole.ADMIN:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    new_role = UserRole(role)
+    await update_user_role(user_id, new_role)
+    
+    return RedirectResponse(url="/admin/users?success=Rôle mis à jour", status_code=303)
+
+
+# ==================== ROUTES OWNER ====================
+
+@app.get("/owner/dashboard", response_class=HTMLResponse)
+async def owner_dashboard(request: Request):
+    """Tableau de bord propriétaire"""
+    user = await get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    # Récupérer les biens de ce propriétaire
+    from pymongo import MongoClient
+    
+    MONGO_USER = os.getenv("MONGO_USER")
+    MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+    MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
+    MONGO_PORT = os.getenv("MONGO_PORT", "27017")
+    MONGO_DB = os.getenv("MONGO_DB", "listings")
+    MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "listings")
+    
+    if MONGO_USER and MONGO_PASSWORD:
+        MONGODB_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/?authSource=admin"
+    else:
+        MONGODB_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
+    
+    try:
+        client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+        properties = list(client[MONGO_DB][MONGO_COLLECTION].find({"submitted_by": str(user.id)}))
+        client.close()
+    except:
+        properties = []
+    
+    return templates.TemplateResponse("owner_dashboard.html", {
+        "request": request,
+        "user": user,
+        "properties": properties
+    })
+
+
+@app.post("/owner/property/{property_id}/delete")
+async def owner_delete_property(request: Request, property_id: str):
+    """Supprimer un bien"""
+    from bson import ObjectId
+    from pymongo import MongoClient
+    
+    user = await get_current_user(request)
+    if not user:
+        return RedirectResponse(url="/login", status_code=303)
+    
+    MONGO_USER = os.getenv("MONGO_USER")
+    MONGO_PASSWORD = os.getenv("MONGO_PASSWORD")
+    MONGO_HOST = os.getenv("MONGO_HOST", "localhost")
+    MONGO_PORT = os.getenv("MONGO_PORT", "27017")
+    MONGO_DB = os.getenv("MONGO_DB", "listings")
+    MONGO_COLLECTION = os.getenv("MONGO_COLLECTION", "listings")
+    
+    if MONGO_USER and MONGO_PASSWORD:
+        MONGODB_URI = f"mongodb://{MONGO_USER}:{MONGO_PASSWORD}@{MONGO_HOST}:{MONGO_PORT}/?authSource=admin"
+    else:
+        MONGODB_URI = f"mongodb://{MONGO_HOST}:{MONGO_PORT}/"
+    
+    try:
+        client = MongoClient(MONGODB_URI, serverSelectionTimeoutMS=5000)
+        # Supprimer seulement si c'est le propriétaire OU si c'est un admin
+        query = {"_id": ObjectId(property_id)}
+        if user.role != UserRole.ADMIN:
+            query["submitted_by"] = str(user.id)
+        
+        client[MONGO_DB][MONGO_COLLECTION].delete_one(query)
+        client.close()
+    except:
+        pass
+    
+    return RedirectResponse(url="/owner/dashboard", status_code=303)
+
 
 if __name__ == "__main__":
     import uvicorn
     uvicorn.run(app, host="0.0.0.0", port=8080)
+

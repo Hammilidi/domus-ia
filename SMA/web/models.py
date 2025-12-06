@@ -41,6 +41,13 @@ class PaymentStatus(str, Enum):
     REFUNDED = "refunded"
 
 
+class UserRole(str, Enum):
+    """Rôles utilisateur: USER (abonné SMA), OWNER (propose des biens), ADMIN"""
+    USER = "user"
+    OWNER = "owner"
+    ADMIN = "admin"
+
+
 # ==================== USER MODELS ====================
 
 class UserBase(BaseModel):
@@ -51,6 +58,7 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     password: str
+    role: UserRole = UserRole.USER  # Par défaut: utilisateur normal
 
 
 class UserLogin(BaseModel):
@@ -61,6 +69,7 @@ class UserLogin(BaseModel):
 class UserInDB(UserBase):
     id: Optional[PyObjectId] = Field(default=None, alias="_id")
     password_hash: str
+    role: UserRole = UserRole.USER
     phone_verified: bool = False
     phone_verification_code: Optional[str] = None
     phone_verification_expires: Optional[datetime] = None
@@ -75,6 +84,7 @@ class UserInDB(UserBase):
 
 class UserResponse(UserBase):
     id: str
+    role: UserRole
     phone_verified: bool
     created_at: datetime
     is_active: bool

@@ -1,0 +1,278 @@
+{% extends "base.html" %}
+
+{% block title %}Proposer un bien - DomusIA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 8rem; padding-bottom: 4rem;">
+    <div class="animate-fade-in" style="text-align: center; margin-bottom: 3rem;">
+        <a href="/dashboard"
+            style="display: inline-flex; align-items: center; gap: 0.5rem; color: var(--text-muted); text-decoration: none; font-size: 0.9rem; margin-bottom: 1rem;">
+            ← Retour au tableau de bord
+        </a>
+        <h1 style="font-size: 2.5rem; font-weight: 700;">
+            <span class="gradient-text">Proposer un bien</span>
+        </h1>
+        <p class="text-muted" style="max-width: 600px; margin: 1rem auto 0;">
+            Vous avez un bien à vendre ou à louer ? Ajoutez-le à notre base pour qu'il soit proposé aux clients via
+            notre assistant IA.
+        </p>
+    </div>
+
+    {% if success %}
+    <div class="glass-panel"
+        style="max-width: 700px; margin: 0 auto 2rem; padding: 2rem; text-align: center; background: rgba(16, 185, 129, 0.1); border-color: rgba(16, 185, 129, 0.4);">
+        <div style="font-size: 3rem; margin-bottom: 1rem;">✅</div>
+        <h3 style="color: #34d399; margin-bottom: 0.5rem;">Bien ajouté avec succès !</h3>
+        <p class="text-muted">Votre annonce est maintenant visible par notre assistant IA.</p>
+        <a href="/submit-property" class="btn btn-secondary" style="margin-top: 1rem;">Ajouter un autre bien</a>
+    </div>
+    {% endif %}
+
+    {% if error %}
+    <div class="glass-panel"
+        style="max-width: 700px; margin: 0 auto 2rem; padding: 1.5rem; text-align: center; background: rgba(239, 68, 68, 0.1); border-color: rgba(239, 68, 68, 0.4);">
+        <p style="color: #f87171;">⚠️ {{ error }}</p>
+    </div>
+    {% endif %}
+
+    <div class="glass-panel animate-fade-in" style="max-width: 800px; margin: 0 auto; padding: 2.5rem;">
+        <form method="POST" action="/submit-property" enctype="multipart/form-data">
+
+            <!-- Section: Informations principales -->
+            <div style="margin-bottom: 2.5rem;">
+                <h3
+                    style="font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    🏠 Informations principales
+                </h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Titre de l'annonce *</label>
+                        <input type="text" name="title" class="form-input" placeholder="Ex: Villa moderne avec piscine"
+                            required>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Type de bien *</label>
+                        <select name="property_type" class="form-input" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="Appartements">Appartement</option>
+                            <option value="Villas">Villa</option>
+                            <option value="Maisons">Maison</option>
+                            <option value="Studios">Studio</option>
+                            <option value="Bureaux">Bureau</option>
+                            <option value="Locaux commerciaux">Local commercial</option>
+                            <option value="Terrains">Terrain</option>
+                            <option value="Riads">Riad</option>
+                            <option value="Fermes">Ferme</option>
+                            <option value="Airbnb">Location saisonnière / Airbnb</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div
+                    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-top: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Type de transaction *</label>
+                        <select name="transaction_type" class="form-input" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="vente">À vendre</option>
+                            <option value="location">À louer</option>
+                            <option value="location_saisonniere">Location saisonnière</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Prix (MAD) *</label>
+                        <input type="text" name="price" class="form-input" placeholder="Ex: 500000 ou 5000/mois"
+                            required>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Localisation -->
+            <div style="margin-bottom: 2.5rem;">
+                <h3
+                    style="font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    📍 Localisation
+                </h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Ville *</label>
+                        <select name="city" class="form-input" required>
+                            <option value="">Sélectionner...</option>
+                            <option value="Casablanca">Casablanca</option>
+                            <option value="Rabat">Rabat</option>
+                            <option value="Marrakech">Marrakech</option>
+                            <option value="Tanger">Tanger</option>
+                            <option value="Fès">Fès</option>
+                            <option value="Agadir">Agadir</option>
+                            <option value="Salé">Salé</option>
+                            <option value="Meknès">Meknès</option>
+                            <option value="Oujda">Oujda</option>
+                            <option value="Kénitra">Kénitra</option>
+                            <option value="Tétouan">Tétouan</option>
+                            <option value="El Jadida">El Jadida</option>
+                            <option value="Essaouira">Essaouira</option>
+                            <option value="Autre">Autre</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Quartier / Adresse</label>
+                        <input type="text" name="adresse" class="form-input" placeholder="Ex: Maarif, Av. Hassan II">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section: Caractéristiques -->
+            <div style="margin-bottom: 2.5rem;">
+                <h3
+                    style="font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    📐 Caractéristiques
+                </h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Surface (m²)</label>
+                        <input type="number" name="surface" class="form-input" placeholder="Ex: 120">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Chambres</label>
+                        <input type="number" name="rooms" class="form-input" placeholder="Ex: 3" min="0">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Étage</label>
+                        <input type="text" name="etage" class="form-input" placeholder="Ex: 2ème">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Âge du bien</label>
+                        <input type="text" name="age_bien" class="form-input" placeholder="Ex: Neuf, 5 ans">
+                    </div>
+                </div>
+
+                <div style="display: flex; flex-wrap: wrap; gap: 2rem; margin-top: 1.5rem;">
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="ascenseur" value="True" style="width: 20px; height: 20px;">
+                        <span>🛗 Ascenseur</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="piscine" value="True" style="width: 20px; height: 20px;">
+                        <span>🏊 Piscine</span>
+                    </label>
+                    <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
+                        <input type="checkbox" name="balcon" value="True" style="width: 20px; height: 20px;">
+                        <span>🌅 Balcon / Terrasse</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Section: Description -->
+            <div style="margin-bottom: 2.5rem;">
+                <h3
+                    style="font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    📝 Description
+                </h3>
+
+                <div class="form-group" style="margin-bottom: 0;">
+                    <label class="form-label">Description du bien</label>
+                    <textarea name="description" class="form-input" rows="4"
+                        placeholder="Décrivez votre bien en détail : état, équipements, environnement..."
+                        style="resize: vertical;"></textarea>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem; margin-bottom: 0;">
+                    <label class="form-label">Caractéristiques supplémentaires</label>
+                    <input type="text" name="caracteristiques_supp" class="form-input"
+                        placeholder="Ex: Parking, Gardien, Climatisation, Meublé...">
+                </div>
+            </div>
+
+            <!-- Section: Contact et Images -->
+            <div style="margin-bottom: 2.5rem;">
+                <h3
+                    style="font-size: 1.2rem; margin-bottom: 1.5rem; padding-bottom: 0.5rem; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                    📞 Contact & Images
+                </h3>
+
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem;">
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Téléphone de contact</label>
+                        <input type="tel" name="contact" class="form-input" placeholder="+212 6XX XXX XXX">
+                    </div>
+
+                    <div class="form-group" style="margin-bottom: 0;">
+                        <label class="form-label">Lien externe (optionnel)</label>
+                        <input type="url" name="url" class="form-input" placeholder="https://...">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-top: 1.5rem; margin-bottom: 0;">
+                    <label class="form-label">Photos du bien</label>
+                    <div style="border: 2px dashed rgba(255,255,255,0.2); border-radius: 12px; padding: 2rem; text-align: center; transition: all 0.3s; cursor: pointer;"
+                        onclick="document.getElementById('images').click()"
+                        ondragover="this.style.borderColor='var(--primary)'; this.style.background='rgba(99,102,241,0.1)'; event.preventDefault();"
+                        ondragleave="this.style.borderColor='rgba(255,255,255,0.2)'; this.style.background='transparent';"
+                        ondrop="handleDrop(event)">
+                        <div style="font-size: 3rem; margin-bottom: 0.5rem;">📷</div>
+                        <p style="color: var(--text-main); margin-bottom: 0.5rem;">Cliquez ou glissez vos images ici</p>
+                        <small class="text-muted">PNG, JPG, WEBP • Max 5 Mo par image • Jusqu'à 10 photos</small>
+                        <input type="file" id="images" name="images" accept="image/*" multiple style="display: none;"
+                            onchange="previewImages(this)">
+                    </div>
+
+                    <!-- Prévisualisation des images -->
+                    <div id="imagePreview" style="display: flex; flex-wrap: wrap; gap: 1rem; margin-top: 1rem;"></div>
+                </div>
+            </div>
+
+            <!-- Submit -->
+            <button type="submit" class="btn btn-primary btn-lg btn-block" style="padding: 1rem 2rem;">
+                🚀 Publier mon bien
+            </button>
+
+            <p class="text-muted" style="text-align: center; margin-top: 1.5rem; font-size: 0.85rem;">
+                En publiant, vous acceptez que votre annonce soit visible via notre assistant DomusIA.
+            </p>
+        </form>
+    </div>
+</div>
+
+<script>
+    function previewImages(input) {
+        const preview = document.getElementById('imagePreview');
+        preview.innerHTML = '';
+
+        if (input.files) {
+            Array.from(input.files).forEach((file, index) => {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    const div = document.createElement('div');
+                    div.style.cssText = 'position: relative; width: 100px; height: 100px; border-radius: 8px; overflow: hidden;';
+                    div.innerHTML = `
+                    <img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover;">
+                    <div style="position: absolute; bottom: 0; left: 0; right: 0; background: rgba(0,0,0,0.7); color: white; font-size: 0.7rem; padding: 2px 4px; text-align: center;">
+                        ${file.name.substring(0, 12)}${file.name.length > 12 ? '...' : ''}
+                    </div>
+                `;
+                    preview.appendChild(div);
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+    }
+
+    function handleDrop(event) {
+        event.preventDefault();
+        const input = document.getElementById('images');
+        input.files = event.dataTransfer.files;
+        previewImages(input);
+        event.target.style.borderColor = 'rgba(255,255,255,0.2)';
+        event.target.style.background = 'transparent';
+    }
+</script>
+{% endblock %}

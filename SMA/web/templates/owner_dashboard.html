@@ -1,0 +1,102 @@
+{% extends "base.html" %}
+
+{% block title %}Mon Espace Propriétaire - DomusIA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 8rem; padding-bottom: 4rem;">
+    <div class="animate-fade-in"
+        style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                🏠 Mes annonces
+            </h1>
+            <p class="text-muted">Gérez vos biens immobiliers sur DomusIA</p>
+        </div>
+        <div>
+            <a href="/submit-property" class="btn btn-primary">
+                <span style="font-size: 1.2rem;">➕</span> Ajouter un bien
+            </a>
+        </div>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="dashboard-grid" style="margin-bottom: 3rem;">
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.1s;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">📋</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ properties|length }}</div>
+            <p class="text-muted">Annonces publiées</p>
+        </div>
+
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.15s;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">👁️</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--secondary);">-</div>
+            <p class="text-muted">Vues totales</p>
+        </div>
+
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.2s;">
+            <div style="font-size: 2rem; margin-bottom: 0.5rem;">💬</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #34d399;">-</div>
+            <p class="text-muted">Demandes reçues</p>
+        </div>
+    </div>
+
+    <!-- Liste des biens -->
+    <div class="glass-panel animate-fade-in">
+        <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem;">📋 Mes biens</h3>
+
+        {% if properties %}
+        <div style="display: grid; gap: 1.5rem;">
+            {% for prop in properties %}
+            <div
+                style="display: flex; gap: 1.5rem; padding: 1.5rem; background: rgba(255,255,255,0.03); border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                <!-- Image -->
+                <div
+                    style="width: 150px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 8px; flex-shrink: 0; overflow: hidden;">
+                    {% if prop.images %}
+                    <img src="{{ prop.images if prop.images is string else prop.images[0] }}"
+                        style="width: 100%; height: 100%; object-fit: cover;">
+                    {% else %}
+                    <div
+                        style="width: 100%; height: 100%; display: flex; align-items: center; justify-content: center; color: var(--text-muted);">
+                        📷</div>
+                    {% endif %}
+                </div>
+
+                <!-- Infos -->
+                <div style="flex: 1;">
+                    <h4 style="font-size: 1.1rem; margin-bottom: 0.5rem;">{{ prop.title }}</h4>
+                    <p class="text-muted" style="font-size: 0.9rem; margin-bottom: 0.5rem;">
+                        📍 {{ prop.location }} • {{ prop.property_type }}
+                    </p>
+                    <div style="display: flex; gap: 1rem; flex-wrap: wrap;">
+                        <span style="font-weight: 700; color: var(--primary);">{{ prop.price }}</span>
+                        {% if prop.surface %}<span class="text-muted">{{ prop.surface }} m²</span>{% endif %}
+                        {% if prop.rooms %}<span class="text-muted">{{ prop.rooms }} ch.</span>{% endif %}
+                    </div>
+                </div>
+
+                <!-- Actions -->
+                <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+                    <a href="/owner/property/{{ prop._id }}/edit" class="btn btn-secondary"
+                        style="font-size: 0.85rem; padding: 0.5rem 1rem;">✏️ Modifier</a>
+                    <form method="POST" action="/owner/property/{{ prop._id }}/delete"
+                        onsubmit="return confirm('Supprimer cette annonce ?');">
+                        <button type="submit" class="btn"
+                            style="font-size: 0.85rem; padding: 0.5rem 1rem; background: rgba(239,68,68,0.2); color: #f87171; border: none; width: 100%;">🗑️
+                            Supprimer</button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div style="text-align: center; padding: 4rem 2rem;">
+            <div style="font-size: 4rem; margin-bottom: 1rem;">🏠</div>
+            <h3 style="margin-bottom: 0.5rem;">Aucune annonce publiée</h3>
+            <p class="text-muted" style="margin-bottom: 1.5rem;">Commencez à proposer vos biens sur DomusIA</p>
+            <a href="/submit-property" class="btn btn-primary">➕ Ajouter mon premier bien</a>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

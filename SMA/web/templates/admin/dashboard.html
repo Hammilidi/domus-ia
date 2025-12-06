@@ -1,0 +1,96 @@
+{% extends "base.html" %}
+
+{% block title %}Administration - DomusIA{% endblock %}
+
+{% block content %}
+<div class="container" style="padding-top: 8rem; padding-bottom: 4rem;">
+    <div class="animate-fade-in" style="margin-bottom: 3rem;">
+        <h1 style="font-size: 2.5rem; font-weight: 700;">
+            🛡️ <span class="gradient-text">Administration</span>
+        </h1>
+        <p class="text-muted">Tableau de bord de gestion de la plateforme DomusIA</p>
+    </div>
+
+    <!-- Statistiques -->
+    <div class="dashboard-grid" style="margin-bottom: 3rem;">
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.1s;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">👥</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--primary);">{{ stats.total }}</div>
+            <p class="text-muted">Utilisateurs totaux</p>
+            <div style="margin-top: 1rem; font-size: 0.9rem;">
+                <span style="color: #34d399;">{{ stats.users }} chercheurs</span> •
+                <span style="color: #818cf8;">{{ stats.owners }} propriétaires</span>
+            </div>
+        </div>
+
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.15s;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">🏠</div>
+            <div style="font-size: 2rem; font-weight: 700; color: var(--secondary);">{{ properties_count }}</div>
+            <p class="text-muted">Biens immobiliers</p>
+        </div>
+
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.2s;">
+            <div style="font-size: 2.5rem; margin-bottom: 0.5rem;">💳</div>
+            <div style="font-size: 2rem; font-weight: 700; color: #34d399;">{{ subscriptions_count }}</div>
+            <p class="text-muted">Abonnements actifs</p>
+        </div>
+    </div>
+
+    <!-- Actions rapides -->
+    <div class="glass-panel animate-fade-in" style="margin-bottom: 2rem;">
+        <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem;">⚡ Actions rapides</h3>
+        <div style="display: flex; flex-wrap: wrap; gap: 1rem;">
+            <a href="/admin/users" class="btn btn-primary">👥 Gérer les utilisateurs</a>
+            <a href="/admin/properties" class="btn btn-secondary">🏠 Gérer les biens</a>
+            <a href="/admin/subscriptions" class="btn btn-secondary">💳 Abonnements</a>
+        </div>
+    </div>
+
+    <!-- Liste des derniers utilisateurs -->
+    <div class="glass-panel animate-fade-in">
+        <h3 style="font-size: 1.3rem; margin-bottom: 1.5rem;">📋 Derniers utilisateurs inscrits</h3>
+        <div style="overflow-x: auto;">
+            <table style="width: 100%; border-collapse: collapse;">
+                <thead>
+                    <tr style="text-align: left; border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <th style="padding: 1rem 0.5rem;">Nom</th>
+                        <th style="padding: 1rem 0.5rem;">Email</th>
+                        <th style="padding: 1rem 0.5rem;">Rôle</th>
+                        <th style="padding: 1rem 0.5rem;">Date</th>
+                        <th style="padding: 1rem 0.5rem;">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for u in recent_users %}
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.05);">
+                        <td style="padding: 1rem 0.5rem;">{{ u.full_name }}</td>
+                        <td style="padding: 1rem 0.5rem; color: var(--text-muted);">{{ u.email }}</td>
+                        <td style="padding: 1rem 0.5rem;">
+                            {% if u.role.value == 'admin' %}
+                            <span class="status-badge"
+                                style="background: rgba(239,68,68,0.2); color: #f87171;">Admin</span>
+                            {% elif u.role.value == 'owner' %}
+                            <span class="status-badge"
+                                style="background: rgba(99,102,241,0.2); color: #818cf8;">Propriétaire</span>
+                            {% else %}
+                            <span class="status-badge"
+                                style="background: rgba(16,185,129,0.2); color: #34d399;">Utilisateur</span>
+                            {% endif %}
+                        </td>
+                        <td style="padding: 1rem 0.5rem; color: var(--text-muted);">{{ u.created_at.strftime('%d/%m/%Y')
+                            }}</td>
+                        <td style="padding: 1rem 0.5rem;">
+                            <a href="/admin/users/{{ u.id }}"
+                                style="color: var(--primary); text-decoration: none;">Voir</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="/admin/users" class="btn btn-secondary" style="font-size: 0.9rem;">Voir tous les utilisateurs →</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

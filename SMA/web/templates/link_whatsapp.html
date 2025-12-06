@@ -1,76 +1,83 @@
 {% extends "base.html" %}
 
-{% block title %}Lier WhatsApp - DomusIA{% endblock %}
+{% block title %}Vérification WhatsApp - DomusIA{% endblock %}
 
 {% block content %}
 <div class="form-container">
-    <div class="form-card animate-fade-in">
-        <div class="form-header">
-            <h1 class="form-title">📱 Lier votre WhatsApp</h1>
-            <p class="form-subtitle">
-                Entrez votre numéro WhatsApp pour recevoir un code de vérification
-            </p>
+    <div class="form-card glass-panel animate-fade-in">
+        
+        <div style="text-align: center; margin-bottom: 2rem;">
+            <div style="font-size: 3rem; margin-bottom: 0.5rem;">📱</div>
+            <h1 style="font-size: 1.8rem; font-weight: 700;">Connexion WhatsApp</h1>
+            <p class="text-muted">Sécurisons votre compte pour commencer.</p>
         </div>
 
         {% if error %}
-        <div class="form-error">
+        <div class="status-error" style="padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(239, 68, 68, 0.3);">
             ⚠️ {{ error }}
         </div>
         {% endif %}
 
         {% if success %}
-        <div class="form-success">
+        <div class="status-active" style="padding: 1rem; border-radius: 12px; margin-bottom: 1.5rem; text-align: center; border: 1px solid rgba(16, 185, 129, 0.3);">
             {{ success }}
         </div>
         {% endif %}
 
-        {% if not code_sent %}
-        <!-- Formulaire d'envoi du numéro -->
+        {% if not code_sent and not user.phone_verified %}
         <form method="POST" action="/link-whatsapp" onsubmit="return validatePhoneNumber()">
             <div class="form-group">
-                <label class="form-label" for="phone_number">Numéro WhatsApp</label>
-                <input type="tel" id="phone_number" name="phone_number" class="form-input"
-                    placeholder="+212 6XX XXX XXX" value="{{ user.phone_number or '' }}" required>
-                <small class="text-muted">Format: +212 6XX XXX XXX</small>
+                <label class="form-label">Votre numéro WhatsApp</label>
+                <div style="position: relative;">
+                    <span style="position: absolute; left: 1rem; top: 50%; transform: translateY(-50%); font-size: 1.2rem;">🇲🇦</span>
+                    <input type="tel" id="phone_number" name="phone_number" class="form-input"
+                        placeholder="+212 6XX XXX XXX" value="{{ user.phone_number or '' }}" 
+                        style="padding-left: 3rem;" required>
+                </div>
+                <small class="text-muted" style="margin-top: 0.5rem; display: block;">Nous vous enverrons un code à 6 chiffres.</small>
             </div>
 
             <button type="submit" class="btn btn-primary btn-block btn-lg">
-                📤 Envoyer le code
+                Envoyer le code
             </button>
         </form>
-        {% else %}
-        <!-- Formulaire de vérification du code -->
+        
+        {% elif code_sent and not user.phone_verified %}
         <form method="POST" action="/verify-phone">
-            <div class="form-group">
-                <label class="form-label" for="code">Code de vérification</label>
-                <input type="text" id="code" name="code" class="form-input" placeholder="XXXXXX" maxlength="6"
-                    pattern="[0-9]{6}" style="font-size: 1.5rem; text-align: center; letter-spacing: 0.5rem;" required>
-                <small class="text-muted">
-                    Entrez le code à 6 chiffres envoyé sur WhatsApp
+            <div class="form-group" style="text-align: center;">
+                <label class="form-label" style="margin-bottom: 1rem;">Code de vérification</label>
+                <input type="text" id="code" name="code" class="form-input" placeholder="000000" maxlength="6"
+                    pattern="[0-9]{6}" 
+                    style="font-size: 2rem; text-align: center; letter-spacing: 1rem; font-family: monospace; padding: 0.5rem; background: rgba(0,0,0,0.3); border-color: var(--primary);" 
+                    required autofocus>
+                
+                <small class="text-muted" style="margin-top: 1rem; display: block;">
+                    Envoyé au {{ user.phone_number }}
                     {% if debug_code %}
-                    <br><strong style="color: var(--warning);">⚠️ DEV: {{ debug_code }}</strong>
+                    <br><strong style="color: #fbbf24; font-family: monospace; font-size: 0.9em; margin-top: 0.5em; display: inline-block;">DEV DEBUG: {{ debug_code }}</strong>
                     {% endif %}
                 </small>
             </div>
 
-            <button type="submit" class="btn btn-success btn-block btn-lg">
-                ✅ Vérifier
+            <button type="submit" class="btn btn-primary btn-block btn-lg" style="background: linear-gradient(135deg, #10b981, #059669);">
+                Vérifier maintenant
             </button>
         </form>
 
-        <div class="form-footer">
-            <a href="/link-whatsapp">← Changer de numéro</a>
+        <div style="text-align: center; margin-top: 1.5rem;">
+            <a href="/link-whatsapp" style="color: var(--text-muted); text-decoration: none; font-size: 0.9rem;">← Modifier le numéro</a>
         </div>
-        {% endif %}
-
-        {% if user.phone_verified %}
-        <div class="form-success mt-3">
-            ✅ Votre numéro <strong>{{ user.phone_number }}</strong> est vérifié !
-        </div>
-        <div class="mt-2">
-            <a href="/dashboard" class="btn btn-secondary btn-block">
-                Retour au Tableau de Bord
-            </a>
+        
+        {% elif user.phone_verified %}
+        <div style="text-align: center; padding: 2rem 0;">
+            <div style="font-size: 4rem; margin-bottom: 1rem; color: #34d399;">✅</div>
+            <h3 style="margin-bottom: 0.5rem;">Compte vérifié</h3>
+            <p class="text-muted">Votre numéro <strong>{{ user.phone_number }}</strong> est actif.</p>
+            <div class="mt-2" style="margin-top: 2rem;">
+                <a href="/dashboard" class="btn btn-secondary btn-block">
+                    Retour au Tableau de Bord
+                </a>
+            </div>
         </div>
         {% endif %}
     </div>

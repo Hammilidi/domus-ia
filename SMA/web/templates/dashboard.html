@@ -1,78 +1,104 @@
 {% extends "base.html" %}
 
-{% block title %}Tableau de Bord - DomusIA{% endblock %}
+{% block title %}Mon Espace - DomusIA{% endblock %}
 
 {% block content %}
-<div class="dashboard">
-    <div class="dashboard-header animate-fade-in">
-        <h1 class="dashboard-welcome">Bonjour, {{ user.full_name.split()[0] }} 👋</h1>
-        <p class="text-muted">Bienvenue sur votre espace DomusIA</p>
+<div class="container" style="padding-top: 8rem; padding-bottom: 4rem;">
+    <div class="animate-fade-in"
+        style="margin-bottom: 3rem; display: flex; justify-content: space-between; align-items: flex-end; flex-wrap: wrap; gap: 1rem;">
+        <div>
+            <h1 style="font-size: 2.5rem; font-weight: 700; margin-bottom: 0.5rem;">
+                Bonjour, {{ user.full_name.split()[0] }}
+            </h1>
+            <p class="text-muted">Voici le statut de vos services immobiliers.</p>
+        </div>
+        <div>
+            <a href="https://wa.me/14155238886" target="_blank" class="btn btn-primary">
+                <span style="font-size: 1.2rem;">💬</span> Ouvrir WhatsApp
+            </a>
+        </div>
     </div>
 
     <div class="dashboard-grid">
-        <!-- Statut de l'abonnement -->
-        <div class="stat-card animate-fade-in">
-            <div class="stat-label">📊 Statut de l'abonnement</div>
-            {% if subscription %}
-            <div class="stat-value active">✅ Actif</div>
-            <p class="text-muted mt-1">
-                Plan {{ subscription.plan.value.capitalize() }} -
-                Expire le {{ subscription.expires_at.strftime('%d/%m/%Y') }}
-            </p>
-            {% else %}
-            <div class="stat-value inactive">⚠️ Aucun abonnement</div>
-            <p class="text-muted mt-1">Vous devez souscrire pour utiliser l'assistant.</p>
-            <a href="/payment" class="btn btn-primary mt-2">Activer mon abonnement</a>
-            {% endif %}
-        </div>
-
-        <!-- Statut WhatsApp -->
-        <div class="stat-card animate-fade-in">
-            <div class="stat-label">📱 WhatsApp</div>
-            {% if user.phone_verified %}
-            <div class="stat-value active">✅ Connecté</div>
-            <p class="text-muted mt-1">{{ user.phone_number }}</p>
-            {% elif user.phone_number %}
-            <div class="stat-value" style="color: var(--warning);">⏳ En attente de vérification</div>
-            <p class="text-muted mt-1">{{ user.phone_number }}</p>
-            <a href="/link-whatsapp" class="btn btn-secondary mt-2">Vérifier mon numéro</a>
-            {% else %}
-            <div class="stat-value inactive">❌ Non configuré</div>
-            <p class="text-muted mt-1">Liez votre numéro pour utiliser l'assistant.</p>
-            <a href="/link-whatsapp" class="btn btn-primary mt-2">Lier mon WhatsApp</a>
-            {% endif %}
-        </div>
-
-        <!-- Comment utiliser -->
-        <div class="stat-card animate-fade-in" style="grid-column: 1 / -1;">
-            <div class="stat-label">🚀 Comment utiliser DomusIA</div>
-            <div class="mt-2">
-                {% if subscription and user.phone_verified %}
-                <div class="form-success">
-                    ✅ <strong>Vous êtes prêt !</strong> Envoyez un message sur WhatsApp au
-                    <strong>+14155238886</strong> pour commencer à chercher des biens.
-                </div>
-                <div class="mt-2">
-                    <h4 style="margin-bottom: 0.5rem;">Exemples de messages :</h4>
-                    <ul style="color: var(--text-secondary); margin-left: 1.5rem;">
-                        <li>"Je cherche un appartement à Casablanca, 3 chambres, max 1 million DH"</li>
-                        <li>"Quelles sont les lois sur la location au Maroc ?"</li>
-                        <li>"Je veux négocier le prix de ce bien [ID]"</li>
-                    </ul>
-                </div>
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.1s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="font-size: 2rem;">💳</div>
+                {% if subscription %}
+                <span class="status-badge status-active">Actif</span>
                 {% else %}
-                <div class="form-error">
-                    ⚠️ Pour utiliser l'assistant, vous devez :
-                    <ol style="margin-left: 1.5rem; margin-top: 0.5rem;">
-                        {% if not subscription %}
-                        <li>Activer un abonnement</li>
-                        {% endif %}
-                        {% if not user.phone_verified %}
-                        <li>Lier et vérifier votre numéro WhatsApp</li>
-                        {% endif %}
-                    </ol>
-                </div>
+                <span class="status-badge status-error">Inactif</span>
                 {% endif %}
+            </div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Abonnement</h3>
+
+            {% if subscription %}
+            <p class="text-muted">Plan {{ subscription.plan.value.capitalize() }}</p>
+            <small style="color: var(--text-muted); display: block; margin-top: 0.5rem;">Expire le {{
+                subscription.expires_at.strftime('%d/%m/%Y') }}</small>
+            <a href="/subscription" class="btn btn-secondary"
+                style="margin-top: 1.5rem; font-size: 0.8rem; padding: 0.5rem 1rem;">Gérer</a>
+            {% else %}
+            <p class="text-muted">Aucun plan actif.</p>
+            <a href="/pricing" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Activer maintenant</a>
+            {% endif %}
+        </div>
+
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.2s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="font-size: 2rem; color: #25D366;">📱</div>
+                {% if user.phone_verified %}
+                <span class="status-badge status-active">Vérifié</span>
+                {% else %}
+                <span class="status-badge status-warning">Action requise</span>
+                {% endif %}
+            </div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Connexion WhatsApp</h3>
+
+            {% if user.phone_verified %}
+            <p style="font-family: monospace; font-size: 1.1rem;">{{ user.phone_number }}</p>
+            <p class="text-muted" style="font-size: 0.9rem; margin-top: 0.5rem;">Prêt à recevoir vos requêtes.</p>
+            {% else %}
+            <p class="text-muted">Numéro non relié.</p>
+            <a href="/link-whatsapp" class="btn btn-secondary btn-block" style="margin-top: 1.5rem;">Connecter mon
+                numéro</a>
+            {% endif %}
+        </div>
+
+        <!-- Carte: Proposer un bien -->
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.25s;">
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 1rem;">
+                <div style="font-size: 2rem;">🏡</div>
+                <span class="status-badge" style="background: rgba(99, 102, 241, 0.2); color: #818cf8;">Nouveau</span>
+            </div>
+            <h3 style="font-size: 1.2rem; margin-bottom: 0.5rem;">Proposer un bien</h3>
+            <p class="text-muted">Vous avez un bien à vendre ou louer ?</p>
+            <a href="/submit-property" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">
+                ➕ Ajouter une annonce
+            </a>
+        </div>
+
+        <div class="glass-panel stat-card animate-fade-in" style="animation-delay: 0.3s; grid-column: 1 / -1;">
+            <h3 style="font-size: 1.5rem; margin-bottom: 1.5rem;">🚀 Démarrage rapide</h3>
+
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+                <div>
+                    <div style="font-weight: 600; color: var(--primary); margin-bottom: 0.5rem;">Étape 1</div>
+                    <p class="text-muted">Enregistrez ce numéro dans vos contacts :</p>
+                    <div
+                        style="background: rgba(0,0,0,0.3); padding: 0.5rem; border-radius: 6px; margin-top: 0.5rem; font-family: monospace;">
+                        +1 415 523 8886</div>
+                </div>
+                <div>
+                    <div style="font-weight: 600; color: var(--secondary); margin-bottom: 0.5rem;">Étape 2</div>
+                    <p class="text-muted">Envoyez votre premier message :</p>
+                    <div style="font-style: italic; color: var(--text-main); margin-top: 0.5rem;">"Je cherche un appart
+                        à Maarif, 2 chambres, budget 8000 DH"</div>
+                </div>
+                <div>
+                    <div style="font-weight: 600; color: var(--accent); margin-bottom: 0.5rem;">Astuce</div>
+                    <p class="text-muted">Vous pouvez aussi demander des conseils juridiques ou des estimations de prix.
+                    </p>
+                </div>
             </div>
         </div>
     </div>
